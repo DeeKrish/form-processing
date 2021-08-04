@@ -1,0 +1,77 @@
+#form processing
+pip install django
+django-admin startproject DEEPTHI
+CD DEEPTHI
+python manage.py startapp DEE
+python manage.py runserver
+-----------------------------
+#views.py
+
+from .forms import CustomerForm
+def index(request):
+    form= CustomerForm()
+    if request.method =='POST':
+        form=CustomerForm(request.POST)
+        if form.is_valid(): form.save()
+    context = {'form':form}
+    return render(request, 'DEE/index.html', context)
+----------------------------------------------------------
+#app urls
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    
+    path('',views.index),
+]
+--------------------------------------------------
+#Main urls.py
+from django.contrib import admin
+from django.urls import path,include
+
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('',include('DEE.urls')),
+]
+--------------------------------------------------
+#admin.py
+
+from django.contrib import admin
+from .models import customer
+admin.site.register(customer)
+-----------------------------------------------
+#models.py
+
+from django.db import models
+class customer(models.Model):
+    fn=models.CharField(max_length=200)
+    ln=models.CharField(max_length=200)
+    def __str__(self):
+        return self.fn+''+self.ln
+-----------------------------------
+python manage.py makemigrations DEE
+python manage.py sqlmigrate DEE 0001
+python manage.py migrate
+------------------------------------
+#create form.py in app
+
+from django.forms import ModelForm
+from .models import customer
+class CustomerForm(ModelForm):
+    class Meta:
+        model = customer
+        fields = '__all__'
+-------------------------------------
+#create index.html in template app
+<h3>Customer form</h3>
+<hr>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit">
+</form>
+--------------------------------------
+python manage.py createsuperuser
+-------------------------------------------
