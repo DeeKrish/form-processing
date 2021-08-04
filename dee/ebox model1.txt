@@ -1,0 +1,106 @@
+#Ebox models 1st one
+#from the dynamic urls fetch the data, store it in models(dbsqlite3) and display as table
+
+pip install django
+django-admin startproject DEEPTHI
+CD DEEPTHI
+python manage.py startapp DEE
+python manage.py runserver
+#settings.py ->'DEE',
+----------------------------
+#project urls
+from django.contrib import admin
+from django.urls import path
+from DEE import views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('save/<eid>/<name>/<mail>/',views.index,name='home'),
+    path('display/',views.display, name='table'),
+
+]
+-------------------------------------------------
+#app urls
+from django.urls import path
+from . import views
+
+urlpatterns = [
+
+    path('save/<eid>/<name>/<mail>/',views.index, name='home'),
+    path('display/',views.display, name='table'),
+]
+--------------------------------------------------------
+#models.py
+from django.db import models
+
+class Employee(models.Model):
+
+    employeeId = models.CharField(max_length = 200)
+    employeeName = models.CharField(max_length = 200)
+    employeeEmail = models.CharField(max_length = 200)
+
+    def __str__(self):
+        return self.employeeId
+-------------------------------------------------------
+python manage.py makemigrations DEE
+python manage.py sqlmigrate DEE 0001
+python manage.py migrate
+------------------------------------
+#admin.py
+from django.contrib import admin
+from .models import Employee
+admin.site.register(Employee)
+-------------------------------------
+python manage.py createsuperuser
+-----------------------------------------
+from django.shortcuts import render
+from .models import Employee
+def index(request,eid,name,mail):
+    e=Employee()
+    e.employeeId=eid
+    e.employeeName=name
+    e.employeeEmail=mail
+    e.save()
+    return render(request, 'DEE/home.html')
+def display(request):
+    display=Employee.objects.all()
+    return render(request, 'DEE/index.html',{'Employee': display})
+------------------------------------------------------
+#create 'templates' folder in app
+# inside 'templates' folder create folder named app.
+#inside that create home.html and index.htlm
+------------------------------------------
+#home.html
+<body>
+<h1>Employee details saved</h1>
+</body>
+------------------------------------------
+#index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table style="width:50%">
+    <tr>
+        <th>Employee Id</th>
+        <th>Employee name</th>
+        <th>Employee email</th>
+    </tr>
+    {% for i in Employee %}
+        <tr>
+            <td>{{ i.employeeId }}</td>
+            <td>{{ i.employeeName }}</td>
+            <td>{{ i.employeeEmail }}</td>
+
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
+---------------------------------------------
+#This won't be having home page, Give urls as 
+http://127.0.0.1:8000/display/
+http://127.0.0.1:8000/save/e4/Lokesh/lokesh@gmail.com/
